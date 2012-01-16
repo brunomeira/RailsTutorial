@@ -107,7 +107,9 @@ describe UsersController do
           post :create, :user => @attr
           controller.should be_signed_in
         end
+
     end
+
   end
 
 
@@ -248,54 +250,45 @@ describe UsersController do
     end
   end
 
-  describe "for signed-in users" do
-      before(:each) do
-        wrong_user = Factory(:user, :email => "user@example.net")
-        test_sign_in(wrong_user)
-      end
+ describe "DELETE 'destroy'" do
 
-      it "should require matching users for 'edit'" do
-        get :edit, :id => @user
-        response.should redirect_to(root_path)
-      end
-
-      it "should require matching users for 'update'" do
-        put :update, :id => @user, :user => {}
-        response.should redirect_to(root_path)
-      end
-    end
-
-  describe "DELETE 'destroy'" do
     before(:each) do
       @user = Factory(:user)
     end
 
-    describe "as non-signed user" do
+    describe "as a non-signed-in user" do
       it "should deny access" do
         delete :destroy, :id => @user
         response.should redirect_to(signin_path)
       end
     end
 
-    describe "as admin user" do
-       before(:each) do
-        admin = Factory(:user, :email => "admin@example.com", :admin => true)
-        test_sign_in(admin)
-       end
-
-       it "should destroy the user" do
-          lambda do
-            delete :destroy, :id=> @user
-          end.should change(User, :count).by(-1)
-       end
-
-        it "should redirect to the users page" do
-          delete :destroy, :id => @user
-          response.should redirect_to(users_path)
-        end
-
+    describe "as a non-admin user" do
+      it "should protect the page" do
+        test_sign_in(@user)
+        delete :destroy, :id => @user
+        response.should redirect_to(root_path)
+      end
     end
 
+    describe "as an admin user" do
+
+      before(:each) do
+        admin = Factory(:user, :email => "admin@example.com", :admin => true)
+        test_sign_in(admin)
+      end
+
+      it "should destroy the user" do
+        lambda do
+          delete :destroy, :id => @user
+        end.should change(User, :count).by(-1)
+      end
+
+      it "should redirect to the users page" do
+        delete :destroy, :id => @user
+        response.should redirect_to(users_path)
+      end
+    end
   end
 
 end
