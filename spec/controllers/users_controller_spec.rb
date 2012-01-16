@@ -107,9 +107,7 @@ describe UsersController do
           post :create, :user => @attr
           controller.should be_signed_in
         end
-
     end
-
   end
 
 
@@ -266,6 +264,39 @@ describe UsersController do
         response.should redirect_to(root_path)
       end
     end
+
+  describe "DELETE 'destroy'" do
+    before(:each) do
+      @user = Factory(:user)
+    end
+
+    describe "as non-signed user" do
+      it "should deny access" do
+        delete :destroy, :id => @user
+        response.should redirect_to(signin_path)
+      end
+    end
+
+    describe "as admin user" do
+       before(:each) do
+        admin = Factory(:user, :email => "admin@example.com", :admin => true)
+        test_sign_in(admin)
+       end
+
+       it "should destroy the user" do
+          lambda do
+            delete :destroy, :id=> @user
+          end.should change(User, :count).by(-1)
+       end
+
+        it "should redirect to the users page" do
+          delete :destroy, :id => @user
+          response.should redirect_to(users_path)
+        end
+
+    end
+
+  end
 
 end
 
