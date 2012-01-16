@@ -9,6 +9,7 @@ gem 'sqlite3'
 gem 'execjs'
 gem 'therubyracer'
 gem 'gravatar_image_tag'
+gem 'will_paginate'
 
 
 # Gems used only for assets and not required
@@ -36,6 +37,7 @@ gem 'jquery-rails'
 group :development do
   gem 'rspec-rails'
   gem 'annotate'
+  gem 'faker'
 end
 
 group :test do
